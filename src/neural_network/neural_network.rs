@@ -34,7 +34,7 @@ pub mod neural_network {
         pub fn forward(&mut self, input: &Array1<f64>) -> Array1<f64> {
             self.input = input.clone();
             let mut result = input.clone();
-            self.operations.mapv_inplace(|o| {
+            self.operations.mapv_inplace(|mut o| {
                 result = o.forward(&result);
                 o
             });

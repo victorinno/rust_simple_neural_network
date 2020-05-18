@@ -3,8 +3,33 @@ pub mod neural_network {
     #[derive(Debug, Clone)]
     pub struct Loss {}
     #[derive(Debug, Clone)]
+    pub struct Operation {}
+
+    impl Operation {
+        pub fn forward(&self, input: &Array1<f64>) -> Array1<f64> {
+            unimplemented!();
+        }
+    }
+
+    #[derive(Debug, Clone)]
     pub struct Layer {
         pub seed: u32,
+        input: Array1<f64>,
+        output: Array1<f64>,
+        operations: Array1<Operation>
+    }
+
+    impl Layer {
+        pub fn forward(&mut self, input: &Array1<f64>) -> Array1<f64> {
+            self.input = input.clone();
+            let mut result = input.clone();
+            self.operations.mapv_inplace(|o| {
+                result = o.forward(&result);
+                o
+            });
+            self.output = result;
+            return self.output.clone();
+        }
     }
     #[derive(Debug, Clone)]
     pub struct NeuralNetwork {
@@ -23,6 +48,15 @@ pub mod neural_network {
                 loss: loss,
                 seed: seed,
             }
+        }
+
+        pub fn fowrad(&mut self, x_batch: &Array1<f64>) -> Array1<f64> {
+            let mut out: Array1<f64> = x_batch.clone();
+            self.layers.mapv_inplace(|mut l| {
+                out = l.forward(&out);
+                l
+            });
+            out
         }
     }
 }

@@ -2,35 +2,44 @@ pub mod neural_network {
     use ndarray::Array1;
     #[derive(Debug, Clone)]
     pub struct Loss {}
+    pub trait Operation {
+        fn set_input(&mut self, input: &Array1<f64>);
+        fn get_output(&self) -> Array1<f64>;
+        fn forward(&mut self, input: &Array1<f64>) -> Array1<f64>;
+    }
     #[derive(Debug, Clone)]
-    pub struct Operation {
-        input: Array1<f64>,
-        output: Array1<f64>,
+    pub struct ParamOperation {
+        pub input: Array1<f64>,
+        pub output: Array1<f64>,
     }
 
-    impl Operation {
-        pub fn forward(&mut self, input: &Array1<f64>) -> Array1<f64> {
-            self.input = input.clone();
-            
-            self.calculate_output();
-
-            return self.output.clone();
+    impl Operation for ParamOperation {
+        fn set_input(&mut self, input: &Array1<f64>) {
+            todo!()
         }
-
-        fn calculate_output(&mut self) {
-            unimplemented!();
+        fn get_output(&self) -> Array1<f64> {
+            todo!()
+        }
+        fn forward(&mut self, input: &Array1<f64>) -> Array1<f64> {
+            todo!()
         }
     }
 
     #[derive(Debug, Clone)]
-    pub struct Layer {
+    pub struct Layer<T>
+    where
+        T: Operation,
+    {
         pub seed: u32,
-        input: Array1<f64>,
-        output: Array1<f64>,
-        operations: Array1<Operation>
+        pub input: Array1<f64>,
+        pub output: Array1<f64>,
+        pub operations: Array1<T>,
     }
 
-    impl Layer {
+    impl<T> Layer<T>
+    where
+        T: Operation + std::clone::Clone,
+    {
         pub fn forward(&mut self, input: &Array1<f64>) -> Array1<f64> {
             self.input = input.clone();
             let mut result = input.clone();
@@ -43,14 +52,20 @@ pub mod neural_network {
         }
     }
     #[derive(Debug, Clone)]
-    pub struct NeuralNetwork {
-        pub layers: Array1<Layer>,
+    pub struct NeuralNetwork<T>
+    where
+        T: Operation,
+    {
+        pub layers: Array1<Layer<T>>,
         pub loss: Loss,
         pub seed: u32,
     }
-    impl NeuralNetwork {
-        pub fn init(layers: Array1<Layer>, loss: Loss, seed: u32) -> NeuralNetwork {
-            let l: Array1<Layer> = layers.mapv_into(|mut l| {
+    impl<T> NeuralNetwork<T>
+    where
+        T: Operation + std::clone::Clone,
+    {
+        pub fn init(layers: Array1<Layer<T>>, loss: Loss, seed: u32) -> NeuralNetwork<T> {
+            let l: Array1<Layer<T>> = layers.mapv_into(|mut l| {
                 l.seed = seed.clone();
                 l
             });

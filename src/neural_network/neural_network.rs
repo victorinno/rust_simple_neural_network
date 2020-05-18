@@ -3,10 +3,21 @@ pub mod neural_network {
     #[derive(Debug, Clone)]
     pub struct Loss {}
     #[derive(Debug, Clone)]
-    pub struct Operation {}
+    pub struct Operation {
+        input: Array1<f64>,
+        output: Array1<f64>,
+    }
 
     impl Operation {
-        pub fn forward(&self, input: &Array1<f64>) -> Array1<f64> {
+        pub fn forward(&mut self, input: &Array1<f64>) -> Array1<f64> {
+            self.input = input.clone();
+            
+            self.calculate_output();
+
+            return self.output.clone();
+        }
+
+        fn calculate_output(&mut self) {
             unimplemented!();
         }
     }
